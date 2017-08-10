@@ -3,6 +3,7 @@ and may not be redistributed without written permission.*/
 
 //Using SDL and standard IO
 #include <SDL.h>
+#include <SDL_image.h>
 #include <stdio.h>
 
 //Screen dimension constants
@@ -38,8 +39,8 @@ SDL_Window* gWindow = NULL;
 //The surface contained by the window
 SDL_Surface* gScreenSurface = NULL;
 
-//Current displayed image
-SDL_Surface* gStretchedSurface = NULL;
+//Current displayed PNG image
+SDL_Surface* gPNGSurface = NULL;
 
 int init()
 {
@@ -64,8 +65,16 @@ int init()
 			printf("Window could not be created! SDL_Error: %s\n", SDL_GetError());
 			success = 0;
 		} else {
-			//Get window surface
-			gScreenSurface = SDL_GetWindowSurface(gWindow);
+			//Initialize PNG loading
+			int imgFlags = IMG_INIT_PNG;
+			if(!( IMG_Init(imgFlags) & imgFlags)) {
+				printf("SDL_image could not initialize! SDL_image Error: %s\n",
+                                        IMG_GetError());
+				success = 0;
+			} else {
+				//Get window surface
+				gScreenSurface = SDL_GetWindowSurface( gWindow );
+			}
 		}
 	}
 
@@ -77,9 +86,9 @@ int loadMedia()
 	//Loading success flag
 	int success = 1;
 
-        gStretchedSurface = loadSurface("stretch.bmp");
-	if(gStretchedSurface == NULL) {
-		printf( "Failed to load stretching image!\n" );
+	gPNGSurface = loadSurface("loaded.png");
+	if( gPNGSurface == NULL ) {
+		printf("Failed to load stretching image!\n");
 		success = 0;
 	}
 
@@ -89,8 +98,8 @@ int loadMedia()
 void close()
 {
 	//Free loaded image
-	SDL_FreeSurface( gStretchedSurface );
-	gStretchedSurface = NULL;
+	SDL_FreeSurface(gPNGSurface);
+	gPNGSurface = NULL;
 
 	//Destroy window
 	SDL_DestroyWindow( gWindow );
@@ -108,13 +117,12 @@ SDL_Surface* loadSurface(char* path)
 	printf("Loading %s.\n", path);
 
 	//Load image at specified path
-	SDL_Surface* loadedSurface = SDL_LoadBMP(path);
+	SDL_Surface* loadedSurface = IMG_Load(path);
 	if(loadedSurface == NULL) {
 		printf("Unable to load image %s! SDL Error: %s\n", path, SDL_GetError());
 	} else {
 		//Convert surface to screen format
 		optimizedSurface = SDL_ConvertSurface(loadedSurface, gScreenSurface->format, 0);
-
 		if( optimizedSurface == NULL ) {
 			printf("Unable to optimize image %s! SDL Error: %s\n",
                                 path,
@@ -154,13 +162,8 @@ int main(int argc, char* args[])
 					}
 				}
 
-				//Apply the image stretched
-				SDL_Rect stretchRect;
-				stretchRect.x = 0;
-				stretchRect.y = 0;
-				stretchRect.w = SCREEN_WIDTH;
-				stretchRect.h = SCREEN_HEIGHT;
-				SDL_BlitScaled( gStretchedSurface, NULL, gScreenSurface, &stretchRect );
+				//Apply the PNG image
+				SDL_BlitSurface( gPNGSurface, NULL, gScreenSurface, NULL );
 
 				//Update the surface
 				SDL_UpdateWindowSurface( gWindow );
