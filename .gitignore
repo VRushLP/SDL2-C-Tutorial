@@ -10,6 +10,9 @@
 # Projects
 *.cbp
 *.depend
+*bin/
+*include/
+*lib/
 
 # Packages #
 ############
