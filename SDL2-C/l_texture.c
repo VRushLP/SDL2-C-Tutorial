@@ -1,0 +1,83 @@
+#include <stdlib.h>
+#include <stdio.h>
+#include <SDL.h>
+#include <SDL_image.h>
+
+#include <assert.h>
+
+#include "l_texture.h"
+
+LTexture* LTexture_create()
+{
+        LTexture* texture = (LTexture*) (malloc(sizeof(LTexture)));
+        texture->mTexture = NULL;
+        texture->mHeight = 0;
+        texture->mWidth = 0;
+        return texture;
+}
+void LTexture_destroy(LTexture *texture)
+{
+        free(texture);
+}
+int LTexture_load_from_file(LTexture *texture, SDL_Renderer *gRenderer, char *path)
+{
+        assert(texture != NULL);
+        //Get rid of preexisting texture
+	LTexture_free(texture);
+
+	//The final texture
+	SDL_Texture *newTexture = NULL;
+
+	//Load image at specified path
+	SDL_Surface *loadedSurface = IMG_Load(path);
+	if( loadedSurface == NULL ) {
+		printf("Unable to load image %s! SDL_image Error: %s\n",
+                        path,
+                        IMG_GetError());
+	} else {
+		//Color key image
+		SDL_SetColorKey(loadedSurface,
+                                SDL_TRUE,
+                                SDL_MapRGB(loadedSurface->format, 0, 0xFF, 0xFF ));
+
+		//Create texture from surface pixels
+                newTexture = SDL_CreateTextureFromSurface(gRenderer, loadedSurface);
+		if( newTexture == NULL ) {
+			printf("Unable to create texture from %s! SDL Error: %s\n",
+                                path,
+                                SDL_GetError());
+		} else {
+			//Get image dimensions
+			texture->mWidth = loadedSurface->w;
+			texture->mHeight = loadedSurface->h;
+		}
+
+		//Get rid of old loaded surface
+		SDL_FreeSurface(loadedSurface);
+	}
+
+	//Return success
+        texture->mTexture = newTexture;
+	return texture->mTexture != NULL;
+
+}
+void LTexture_free(LTexture *texture)
+{
+        assert(texture != NULL);
+        //Free texture if it exists
+	if(texture->mTexture != NULL )
+	{
+		SDL_DestroyTexture(texture->mTexture );
+		texture->mTexture = NULL;
+		texture->mWidth = 0;
+		texture->mHeight = 0;
+	}
+}
+void LTexture_render(LTexture *texture, SDL_Renderer *gRenderer, int x, int y)
+{
+        assert(texture != NULL);
+        assert(gRenderer != NULL);
+        //Set rendering space and render to screen
+	SDL_Rect renderQuad = {x, y, texture->mWidth, texture->mHeight};
+	SDL_RenderCopy(gRenderer, texture->mTexture, NULL, &renderQuad);
+}
