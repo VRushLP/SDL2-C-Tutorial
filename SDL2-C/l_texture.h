@@ -6,14 +6,15 @@
 
 typedef struct LTexture {
         SDL_Texture* mTexture;
+        SDL_Renderer *gRenderer;
         int mWidth;
         int mHeight;
 } LTexture;
 
 LTexture* LTexture_create();
 void LTexture_destroy(LTexture *texture);
-int LTexture_loadFromFile(LTexture *texture, SDL_Renderer *gRenderer, char *path);
+int LTexture_loadFromFile(LTexture *texture, char *path);
 void LTexture_free(LTexture *texture);
-void LTexture_render(LTexture *texture, SDL_Renderer *gRenderer, int x, int y);
+void LTexture_render(LTexture *texture, int x, int y);
 
 #endif // __L_TEXTURE__

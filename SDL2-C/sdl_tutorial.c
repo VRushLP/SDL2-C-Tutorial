@@ -95,17 +95,17 @@ int loadMedia()
 	//Loading success flag
 	int success = 1;
 
-	gFooTexture = LTexture_create();
-	gBackgroundTexture = LTexture_create();
+	gFooTexture = LTexture_create(gRenderer);
+	gBackgroundTexture = LTexture_create(gRenderer);
 
         //Load Foo' texture
-	if(!LTexture_loadFromFile(gFooTexture, gRenderer, "foo.png")) {
+	if(!LTexture_loadFromFile(gFooTexture, "foo.png")) {
                 printf("Failed to load Foo' texture image!\n");
 		success = 0;
 	}
 
 	//Load background texture
-	if(!LTexture_loadFromFile(gBackgroundTexture, gRenderer, "background.png")) {
+	if(!LTexture_loadFromFile(gBackgroundTexture, "background.png")) {
 		printf("Failed to load background texture image!\n");
 		success = 0;
 	}
@@ -191,10 +191,10 @@ int main(int argc, char* args[])
 				SDL_RenderClear(gRenderer);
 
 				//Render background texture to screen
-				LTexture_render(gBackgroundTexture, gRenderer, 0, 0);
+				LTexture_render(gBackgroundTexture, 0, 0);
 
 				//Render Foo' to the screen
-				LTexture_render(gFooTexture, gRenderer, 240, 190);
+				LTexture_render(gFooTexture, 240, 190);
 
 				//Update screen
 				SDL_RenderPresent(gRenderer);

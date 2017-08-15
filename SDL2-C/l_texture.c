@@ -7,19 +7,22 @@
 
 #include "l_texture.h"
 
-LTexture* LTexture_create()
+LTexture* LTexture_create(SDL_Renderer *gRenderer)
 {
         LTexture* texture = (LTexture*) (malloc(sizeof(LTexture)));
         texture->mTexture = NULL;
+        texture->gRenderer = gRenderer;
         texture->mHeight = 0;
         texture->mWidth = 0;
         return texture;
 }
+
 void LTexture_destroy(LTexture *texture)
 {
         free(texture);
 }
-int LTexture_loadFromFile(LTexture *texture, SDL_Renderer *gRenderer, char *path)
+
+int LTexture_loadFromFile(LTexture *texture, char *path)
 {
         assert(texture != NULL);
         //Get rid of preexisting texture
@@ -41,7 +44,7 @@ int LTexture_loadFromFile(LTexture *texture, SDL_Renderer *gRenderer, char *path
                                 SDL_MapRGB(loadedSurface->format, 0, 0xFF, 0xFF ));
 
 		//Create texture from surface pixels
-                newTexture = SDL_CreateTextureFromSurface(gRenderer, loadedSurface);
+                newTexture = SDL_CreateTextureFromSurface(texture->gRenderer, loadedSurface);
 		if( newTexture == NULL ) {
 			printf("Unable to create texture from %s! SDL Error: %s\n",
                                 path,
@@ -61,6 +64,7 @@ int LTexture_loadFromFile(LTexture *texture, SDL_Renderer *gRenderer, char *path
 	return texture->mTexture != NULL;
 
 }
+
 void LTexture_free(LTexture *texture)
 {
         assert(texture != NULL);
@@ -73,11 +77,11 @@ void LTexture_free(LTexture *texture)
 		texture->mHeight = 0;
 	}
 }
-void LTexture_render(LTexture *texture, SDL_Renderer *gRenderer, int x, int y)
+
+void LTexture_render(LTexture *texture, int x, int y)
 {
         assert(texture != NULL);
-        assert(gRenderer != NULL);
         //Set rendering space and render to screen
 	SDL_Rect renderQuad = {x, y, texture->mWidth, texture->mHeight};
-	SDL_RenderCopy(gRenderer, texture->mTexture, NULL, &renderQuad);
+	SDL_RenderCopy(texture->gRenderer, texture->mTexture, NULL, &renderQuad);
 }
