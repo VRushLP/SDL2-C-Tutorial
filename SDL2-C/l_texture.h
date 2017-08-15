@@ -12,7 +12,7 @@ typedef struct LTexture {
 
 LTexture* LTexture_create();
 void LTexture_destroy(LTexture *texture);
-int LTexture_load_from_file(LTexture *texture, SDL_Renderer *gRenderer, char *path);
+int LTexture_loadFromFile(LTexture *texture, SDL_Renderer *gRenderer, char *path);
 void LTexture_free(LTexture *texture);
 void LTexture_render(LTexture *texture, SDL_Renderer *gRenderer, int x, int y);
 

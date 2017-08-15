@@ -19,7 +19,7 @@ void LTexture_destroy(LTexture *texture)
 {
         free(texture);
 }
-int LTexture_load_from_file(LTexture *texture, SDL_Renderer *gRenderer, char *path)
+int LTexture_loadFromFile(LTexture *texture, SDL_Renderer *gRenderer, char *path)
 {
         assert(texture != NULL);
         //Get rid of preexisting texture

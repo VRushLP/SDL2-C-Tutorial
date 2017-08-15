@@ -5,6 +5,7 @@ and may not be redistributed without written permission.*/
 #include <SDL.h>
 #include <SDL_image.h>
 #include <stdio.h>
+#include <assert.h>
 
 #include "l_texture.h"
 
@@ -31,8 +32,8 @@ SDL_Window *gWindow = NULL;
 SDL_Renderer *gRenderer = NULL;
 
 //Scene textures
-LTexture gFooTexture;
-LTexture gBackgroundTexture;
+LTexture *gFooTexture = NULL;
+LTexture *gBackgroundTexture = NULL;
 
 
 int init() {
@@ -94,14 +95,17 @@ int loadMedia()
 	//Loading success flag
 	int success = 1;
 
+	gFooTexture = LTexture_create();
+	gBackgroundTexture = LTexture_create();
+
         //Load Foo' texture
-	if(!LTexture_loadFromFile(&gFooTexture, gRenderer, "foo.png")) {
+	if(!LTexture_loadFromFile(gFooTexture, gRenderer, "foo.png")) {
                 printf("Failed to load Foo' texture image!\n");
 		success = 0;
 	}
 
 	//Load background texture
-	if(!LTexture_loadFromFile(&gBackgroundTexture, gRenderer, "background.png")) {
+	if(!LTexture_loadFromFile(gBackgroundTexture, gRenderer, "background.png")) {
 		printf("Failed to load background texture image!\n");
 		success = 0;
 	}
@@ -112,14 +116,18 @@ int loadMedia()
 void close()
 {
 	//Free loaded images
-	LTexture_free(&gFooTexture);
-        LTexture_free(&gBackgroundTexture);
+	assert(gFooTexture != NULL);
+	LTexture_free(gFooTexture);
+        assert(gBackgroundTexture != NULL);
+        LTexture_free(gBackgroundTexture);
 
 	//Destroy window
-	SDL_DestroyRenderer( gRenderer );
-	SDL_DestroyWindow( gWindow );
+	SDL_DestroyRenderer(gRenderer);
+	SDL_DestroyWindow(gWindow);
 	gWindow = NULL;
 	gRenderer = NULL;
+	gFooTexture = NULL;
+	gBackgroundTexture = NULL;
 
 	//Quit SDL subsystems
 	IMG_Quit();
@@ -183,10 +191,10 @@ int main(int argc, char* args[])
 				SDL_RenderClear(gRenderer);
 
 				//Render background texture to screen
-				LTexture_render(&gBackgroundTexture, gRenderer, 0, 0);
+				LTexture_render(gBackgroundTexture, gRenderer, 0, 0);
 
 				//Render Foo' to the screen
-				LTexture_render(&gFooTexture, gRenderer, 240, 190);
+				LTexture_render(gFooTexture, gRenderer, 240, 190);
 
 				//Update screen
 				SDL_RenderPresent(gRenderer);
