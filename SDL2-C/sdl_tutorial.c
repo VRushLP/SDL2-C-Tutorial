@@ -31,9 +31,9 @@ SDL_Window *gWindow = NULL;
 //The window renderer
 SDL_Renderer *gRenderer = NULL;
 
-//Scene textures
-LTexture *gFooTexture = NULL;
-LTexture *gBackgroundTexture = NULL;
+//Scene sprites
+SDL_Rect gSpriteClips[4];
+LTexture *gSpriteSheetTexture;
 
 
 int init() {
@@ -95,19 +95,33 @@ int loadMedia()
 	//Loading success flag
 	int success = 1;
 
-	gFooTexture = LTexture_create(gRenderer);
-	gBackgroundTexture = LTexture_create(gRenderer);
+	gSpriteSheetTexture = LTexture_create(gRenderer);
 
         //Load Foo' texture
-	if(!LTexture_loadFromFile(gFooTexture, "foo.png")) {
-                printf("Failed to load Foo' texture image!\n");
+	if(!LTexture_loadFromFile(gSpriteSheetTexture, "dots.png")) {
+                printf("Failed to load sprite sheet texture!\n");
 		success = 0;
-	}
+	} else {
+	        gSpriteClips[0].x = 0;
+	        gSpriteClips[0].y = 0;
+	        gSpriteClips[0].w = 100;
+	        gSpriteClips[0].h = 100;
 
-	//Load background texture
-	if(!LTexture_loadFromFile(gBackgroundTexture, "background.png")) {
-		printf("Failed to load background texture image!\n");
-		success = 0;
+	        gSpriteClips[1].x = 100;
+	        gSpriteClips[1].y = 0;
+	        gSpriteClips[1].w = 100;
+	        gSpriteClips[1].h = 100;
+
+	        gSpriteClips[2].x = 0;
+	        gSpriteClips[2].y = 100;
+	        gSpriteClips[2].w = 100;
+	        gSpriteClips[2].h = 100;
+
+	        gSpriteClips[3].x = 100;
+	        gSpriteClips[3].y = 100;
+	        gSpriteClips[3].w = 100;
+	        gSpriteClips[3].h = 100;
+
 	}
 
 	return success;
@@ -116,18 +130,15 @@ int loadMedia()
 void close()
 {
 	//Free loaded images
-	assert(gFooTexture != NULL);
-	LTexture_free(gFooTexture);
-        assert(gBackgroundTexture != NULL);
-        LTexture_free(gBackgroundTexture);
+	assert(gSpriteSheetTexture != NULL);
+	LTexture_free(gSpriteSheetTexture);
 
 	//Destroy window
 	SDL_DestroyRenderer(gRenderer);
 	SDL_DestroyWindow(gWindow);
 	gWindow = NULL;
 	gRenderer = NULL;
-	gFooTexture = NULL;
-	gBackgroundTexture = NULL;
+	gSpriteSheetTexture = NULL;
 
 	//Quit SDL subsystems
 	IMG_Quit();
@@ -190,11 +201,10 @@ int main(int argc, char* args[])
 				SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
 				SDL_RenderClear(gRenderer);
 
-				//Render background texture to screen
-				LTexture_render(gBackgroundTexture, 0, 0);
-
-				//Render Foo' to the screen
-				LTexture_render(gFooTexture, 240, 190);
+				LTexture_render(gSpriteSheetTexture, 0, 0, &gSpriteClips[0]);
+                                LTexture_render(gSpriteSheetTexture, SCREEN_WIDTH-gSpriteClips[1].w, 0, &gSpriteClips[1]);
+                                LTexture_render(gSpriteSheetTexture, 0, SCREEN_HEIGHT-gSpriteClips[2].h, &gSpriteClips[2]);
+				LTexture_render(gSpriteSheetTexture, SCREEN_WIDTH-gSpriteClips[3].w, SCREEN_HEIGHT-gSpriteClips[ 3 ].h, &gSpriteClips[ 3 ]);
 
 				//Update screen
 				SDL_RenderPresent(gRenderer);

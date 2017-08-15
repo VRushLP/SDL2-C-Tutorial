@@ -78,10 +78,16 @@ void LTexture_free(LTexture *texture)
 	}
 }
 
-void LTexture_render(LTexture *texture, int x, int y)
+void LTexture_render(LTexture *texture, int x, int y, SDL_Rect* clip)
 {
         assert(texture != NULL);
-        //Set rendering space and render to screen
+        // Set rendering space and render to screen
 	SDL_Rect renderQuad = {x, y, texture->mWidth, texture->mHeight};
-	SDL_RenderCopy(texture->gRenderer, texture->mTexture, NULL, &renderQuad);
+	if(clip != NULL){
+               renderQuad.w = clip->w;
+               renderQuad.h = clip->h;
+	}
+
+	// Render to screen
+	SDL_RenderCopy(texture->gRenderer, texture->mTexture, clip, &renderQuad);
 }

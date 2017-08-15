@@ -15,6 +15,6 @@ LTexture* LTexture_create();
 void LTexture_destroy(LTexture *texture);
 int LTexture_loadFromFile(LTexture *texture, char *path);
 void LTexture_free(LTexture *texture);
-void LTexture_render(LTexture *texture, int x, int y);
+void LTexture_render(LTexture *texture, int x, int y, SDL_Rect* clip);
 
 #endif // __L_TEXTURE__
