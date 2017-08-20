@@ -148,6 +148,81 @@ SDL_Texture* loadTexture(char* path)
 	return newTexture;
 }
 
+int event_loop()
+{
+        //Main loop flag
+        int quit = 0;
+
+        //Event handler
+        SDL_Event e;
+
+        // Modulation components
+        unsigned char r = 255;
+        unsigned char g = 255;
+        unsigned char b = 255;
+
+        //While application is running
+        while(!quit) {
+                //Handle events on queue
+                while(SDL_PollEvent(&e) != 0) {
+                        //User requests quit
+                        if(e.type == SDL_QUIT) {
+                                quit = 1;
+                        } else if(e.type == SDL_KEYDOWN) {
+                                switch(e.key.keysym.sym) {
+                                        //Increase red
+                                        case SDLK_q:
+                                                r += 32;
+                                                break;
+
+                                        //Increase green
+                                        case SDLK_w:
+                                                g += 32;
+                                                break;
+
+                                        //Increase blue
+                                        case SDLK_e:
+                                                b += 32;
+                                                break;
+
+                                        //Decrease red
+                                        case SDLK_a:
+                                                r -= 32;
+                                                break;
+
+                                        //Decrease green
+                                        case SDLK_s:
+                                                g -= 32;
+                                                break;
+
+                                        //Decrease blue
+                                        case SDLK_d:
+                                                b -= 32;
+                                                break;
+
+                                        case SDLK_r:
+                                                r=255;
+                                                g=255;
+                                                b=255;
+                                                break;
+                                }
+                        }
+                }
+
+                //Clear screen
+                SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
+                SDL_RenderClear(gRenderer);
+
+                //Modulate and render texture
+                LTexture_setColor(gModulatedTexture, r, g, b);
+                LTexture_render(gModulatedTexture, 0, 0, NULL);
+
+                //Update screen
+                SDL_RenderPresent(gRenderer);
+        }
+        return 0;
+}
+
 
 int main(int argc, char* args[])
 {
@@ -158,76 +233,7 @@ int main(int argc, char* args[])
 		if(!loadMedia()) {
 			printf( "Failed to load media!\n" );
 		} else {
-			//Main loop flag
-			int quit = 0;
-
-			//Event handler
-			SDL_Event e;
-
-			// Modulation components
-			unsigned char r = 255;
-			unsigned char g = 255;
-			unsigned char b = 255;
-
-			//While application is running
-			while(!quit) {
-				//Handle events on queue
-				while(SDL_PollEvent(&e) != 0) {
-					//User requests quit
-					if(e.type == SDL_QUIT) {
-                                                quit = 1;
-					} else if(e.type == SDL_KEYDOWN) {
-						switch(e.key.keysym.sym) {
-							//Increase red
-							case SDLK_q:
-                                                                r += 32;
-                                                                break;
-
-							//Increase green
-							case SDLK_w:
-                                                                g += 32;
-                                                                break;
-
-							//Increase blue
-							case SDLK_e:
-                                                                b += 32;
-                                                                break;
-
-							//Decrease red
-							case SDLK_a:
-                                                                r -= 32;
-                                                                break;
-
-							//Decrease green
-							case SDLK_s:
-                                                                g -= 32;
-                                                                break;
-
-							//Decrease blue
-							case SDLK_d:
-                                                                b -= 32;
-                                                                break;
-
-							case SDLK_r:
-                                                                r=255;
-                                                                g=255;
-                                                                b=255;
-                                                                break;
-						}
-					}
-				}
-
-                                //Clear screen
-				SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
-				SDL_RenderClear(gRenderer);
-
-                                //Modulate and render texture
-                                LTexture_setColor(gModulatedTexture, r, g, b);
-				LTexture_render(gModulatedTexture, 0, 0, NULL);
-
-				//Update screen
-				SDL_RenderPresent(gRenderer);
-			}
+                        event_loop();
 		}
 	}
 	//Free resources and close SDL
