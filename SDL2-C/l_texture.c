@@ -67,9 +67,10 @@ int LTexture_loadFromFile(LTexture *texture, char *path)
 
 void LTexture_free(LTexture *texture)
 {
-        assert(texture != NULL);
-        //Free texture if it exists
-	if(texture->mTexture != NULL )
+        // assert(texture != NULL);
+        // Null pointers should be okay.
+        // Free texture if it exists
+	if(texture != NULL && texture->mTexture != NULL )
 	{
 		SDL_DestroyTexture(texture->mTexture );
 		texture->mTexture = NULL;

@@ -108,7 +108,6 @@ int loadMedia()
 void close()
 {
 	//Free loaded images
-	assert(gModulatedTexture != NULL);
 	LTexture_free(gModulatedTexture);
 
 	//Destroy window
@@ -201,9 +200,9 @@ int event_loop()
                                                 break;
 
                                         case SDLK_r:
-                                                r=255;
-                                                g=255;
-                                                b=255;
+                                                r = 255;
+                                                g = 255;
+                                                b = 255;
                                                 break;
                                 }
                         }
@@ -228,16 +227,18 @@ int main(int argc, char* args[])
 {
         if(!init()) {
 		printf( "Failed to initialize!\n" );
-	} else {
-		//Load media
-		if(!loadMedia()) {
-			printf( "Failed to load media!\n" );
-		} else {
-                        event_loop();
-		}
+		goto finalize;
 	}
-	//Free resources and close SDL
-	close();
+		//Load media
+        if(!loadMedia()) {
+                printf( "Failed to load media!\n" );
+                goto finalize;
+        }
+        event_loop();
 
-	return 0;
+
+	finalize:
+	//Free resources and close SDL
+                close();
+                return 0;
 }
