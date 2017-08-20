@@ -19,6 +19,7 @@ LTexture* LTexture_create(SDL_Renderer *gRenderer)
 
 void LTexture_destroy(LTexture *texture)
 {
+        LTexture_destroy(texture);
         free(texture);
 }
 
@@ -62,7 +63,6 @@ int LTexture_loadFromFile(LTexture *texture, char *path)
 	//Return success
         texture->mTexture = newTexture;
 	return texture->mTexture != NULL;
-
 }
 
 void LTexture_free(LTexture *texture)
@@ -90,4 +90,11 @@ void LTexture_render(LTexture *texture, int x, int y, SDL_Rect* clip)
 
 	// Render to screen
 	SDL_RenderCopy(texture->gRenderer, texture->mTexture, clip, &renderQuad);
+}
+
+void LTexture_setColor(LTexture *texture, unsigned char red, unsigned char green, unsigned char blue)
+{
+        assert(texture != NULL);
+        //Modulate texture
+        SDL_SetTextureColorMod(texture->mTexture, red, green, blue);
 }

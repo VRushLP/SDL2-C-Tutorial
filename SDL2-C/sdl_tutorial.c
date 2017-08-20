@@ -31,9 +31,8 @@ SDL_Window *gWindow = NULL;
 //The window renderer
 SDL_Renderer *gRenderer = NULL;
 
-//Scene sprites
-SDL_Rect gSpriteClips[4];
-LTexture *gSpriteSheetTexture;
+//Scene texture
+LTexture *gModulatedTexture;
 
 
 int init() {
@@ -95,33 +94,12 @@ int loadMedia()
 	//Loading success flag
 	int success = 1;
 
-	gSpriteSheetTexture = LTexture_create(gRenderer);
+	gModulatedTexture = LTexture_create(gRenderer);
 
         //Load Foo' texture
-	if(!LTexture_loadFromFile(gSpriteSheetTexture, "dots.png")) {
+	if(!LTexture_loadFromFile(gModulatedTexture, "colors.png")) {
                 printf("Failed to load sprite sheet texture!\n");
 		success = 0;
-	} else {
-	        gSpriteClips[0].x = 0;
-	        gSpriteClips[0].y = 0;
-	        gSpriteClips[0].w = 100;
-	        gSpriteClips[0].h = 100;
-
-	        gSpriteClips[1].x = 100;
-	        gSpriteClips[1].y = 0;
-	        gSpriteClips[1].w = 100;
-	        gSpriteClips[1].h = 100;
-
-	        gSpriteClips[2].x = 0;
-	        gSpriteClips[2].y = 100;
-	        gSpriteClips[2].w = 100;
-	        gSpriteClips[2].h = 100;
-
-	        gSpriteClips[3].x = 100;
-	        gSpriteClips[3].y = 100;
-	        gSpriteClips[3].w = 100;
-	        gSpriteClips[3].h = 100;
-
 	}
 
 	return success;
@@ -130,15 +108,14 @@ int loadMedia()
 void close()
 {
 	//Free loaded images
-	assert(gSpriteSheetTexture != NULL);
-	LTexture_free(gSpriteSheetTexture);
+	assert(gModulatedTexture != NULL);
+	LTexture_free(gModulatedTexture);
 
 	//Destroy window
 	SDL_DestroyRenderer(gRenderer);
 	SDL_DestroyWindow(gWindow);
 	gWindow = NULL;
 	gRenderer = NULL;
-	gSpriteSheetTexture = NULL;
 
 	//Quit SDL subsystems
 	IMG_Quit();
@@ -187,6 +164,11 @@ int main(int argc, char* args[])
 			//Event handler
 			SDL_Event e;
 
+			// Modulation components
+			unsigned char r = 255;
+			unsigned char g = 255;
+			unsigned char b = 255;
+
 			//While application is running
 			while(!quit) {
 				//Handle events on queue
@@ -194,6 +176,44 @@ int main(int argc, char* args[])
 					//User requests quit
 					if(e.type == SDL_QUIT) {
                                                 quit = 1;
+					} else if(e.type == SDL_KEYDOWN) {
+						switch(e.key.keysym.sym) {
+							//Increase red
+							case SDLK_q:
+                                                                r += 32;
+                                                                break;
+
+							//Increase green
+							case SDLK_w:
+                                                                g += 32;
+                                                                break;
+
+							//Increase blue
+							case SDLK_e:
+                                                                b += 32;
+                                                                break;
+
+							//Decrease red
+							case SDLK_a:
+                                                                r -= 32;
+                                                                break;
+
+							//Decrease green
+							case SDLK_s:
+                                                                g -= 32;
+                                                                break;
+
+							//Decrease blue
+							case SDLK_d:
+                                                                b -= 32;
+                                                                break;
+
+							case SDLK_r:
+                                                                r=255;
+                                                                g=255;
+                                                                b=255;
+                                                                break;
+						}
 					}
 				}
 
@@ -201,10 +221,9 @@ int main(int argc, char* args[])
 				SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
 				SDL_RenderClear(gRenderer);
 
-				LTexture_render(gSpriteSheetTexture, 0, 0, &gSpriteClips[0]);
-                                LTexture_render(gSpriteSheetTexture, SCREEN_WIDTH-gSpriteClips[1].w, 0, &gSpriteClips[1]);
-                                LTexture_render(gSpriteSheetTexture, 0, SCREEN_HEIGHT-gSpriteClips[2].h, &gSpriteClips[2]);
-				LTexture_render(gSpriteSheetTexture, SCREEN_WIDTH-gSpriteClips[3].w, SCREEN_HEIGHT-gSpriteClips[ 3 ].h, &gSpriteClips[ 3 ]);
+                                //Modulate and render texture
+                                LTexture_setColor(gModulatedTexture, r, g, b);
+				LTexture_render(gModulatedTexture, 0, 0, NULL);
 
 				//Update screen
 				SDL_RenderPresent(gRenderer);
