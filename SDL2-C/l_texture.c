@@ -7,11 +7,12 @@
 
 #include "l_texture.h"
 
-LTexture* LTexture_create(SDL_Renderer *gRenderer)
+extern SDL_Renderer *gRenderer;
+
+LTexture* LTexture_create()
 {
         LTexture* texture = (LTexture*) (malloc(sizeof(LTexture)));
         texture->mTexture = NULL;
-        texture->gRenderer = gRenderer;
         texture->mHeight = 0;
         texture->mWidth = 0;
         return texture;
@@ -25,7 +26,6 @@ void LTexture_destroy(LTexture *texture)
 
 int LTexture_loadFromFile(LTexture *texture, char *path)
 {
-        assert(texture != NULL);
         //Get rid of preexisting texture
 	LTexture_free(texture);
 
@@ -45,7 +45,7 @@ int LTexture_loadFromFile(LTexture *texture, char *path)
                                 SDL_MapRGB(loadedSurface->format, 0, 0xFF, 0xFF ));
 
 		//Create texture from surface pixels
-                newTexture = SDL_CreateTextureFromSurface(texture->gRenderer, loadedSurface);
+                newTexture = SDL_CreateTextureFromSurface(gRenderer, loadedSurface);
 		if( newTexture == NULL ) {
 			printf("Unable to create texture from %s! SDL Error: %s\n",
                                 path,
@@ -90,7 +90,7 @@ void LTexture_render(LTexture *texture, int x, int y, SDL_Rect* clip)
 	}
 
 	// Render to screen
-	SDL_RenderCopy(texture->gRenderer, texture->mTexture, clip, &renderQuad);
+	SDL_RenderCopy(gRenderer, texture->mTexture, clip, &renderQuad);
 }
 
 void LTexture_setColor(LTexture *texture, unsigned char red, unsigned char green, unsigned char blue)
@@ -98,4 +98,14 @@ void LTexture_setColor(LTexture *texture, unsigned char red, unsigned char green
         assert(texture != NULL);
         //Modulate texture
         SDL_SetTextureColorMod(texture->mTexture, red, green, blue);
+}
+
+void LTexture_setBlendMode(LTexture *texture, SDL_BlendMode blending)
+{
+        SDL_SetTextureBlendMode(texture->mTexture, blending);
+}
+
+void LTexture_setAlpha(LTexture *texture, unsigned char alpha)
+{
+        SDL_SetTextureAlphaMod(texture->mTexture, alpha);
 }

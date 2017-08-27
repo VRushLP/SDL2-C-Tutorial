@@ -13,6 +13,8 @@ and may not be redistributed without written permission.*/
 const int SCREEN_WIDTH = 640;
 const int SCREEN_HEIGHT = 480;
 
+int ALPHA_DELTA = 32;
+
 //Starts up SDL and creates window
 int init();
 
@@ -33,6 +35,8 @@ SDL_Renderer *gRenderer = NULL;
 
 //Scene texture
 LTexture *gModulatedTexture;
+
+LTexture *gBackgroundTexture;
 
 
 int init() {
@@ -94,12 +98,20 @@ int loadMedia()
 	//Loading success flag
 	int success = 1;
 
-	gModulatedTexture = LTexture_create(gRenderer);
+	gModulatedTexture = LTexture_create();
+	gBackgroundTexture = LTexture_create();
 
         //Load Foo' texture
-	if(!LTexture_loadFromFile(gModulatedTexture, "colors.png")) {
-                printf("Failed to load sprite sheet texture!\n");
-		success = 0;
+	if(!LTexture_loadFromFile(gModulatedTexture, "fadeout.png")) {
+                printf( "Failed to load front texture!\n" );
+ 		success = 0;
+	} else {
+                LTexture_setBlendMode(gModulatedTexture, SDL_BLENDMODE_BLEND);
+	}
+
+	if(!LTexture_loadFromFile(gBackgroundTexture, "fadein.png")){
+                printf( "Failed to load background texture!\n" );
+ 		success = 0;
 	}
 
 	return success;
@@ -109,6 +121,7 @@ void close()
 {
 	//Free loaded images
 	LTexture_free(gModulatedTexture);
+	LTexture_free(gBackgroundTexture);
 
 	//Destroy window
 	SDL_DestroyRenderer(gRenderer);
@@ -150,61 +163,30 @@ SDL_Texture* loadTexture(char* path)
 int event_loop()
 {
         //Main loop flag
-        int quit = 0;
+        int running = 1;
 
         //Event handler
         SDL_Event e;
 
         // Modulation components
-        unsigned char r = 255;
-        unsigned char g = 255;
-        unsigned char b = 255;
+        unsigned char alpha = 255;
 
         //While application is running
-        while(!quit) {
+        while(running) {
                 //Handle events on queue
                 while(SDL_PollEvent(&e) != 0) {
                         //User requests quit
                         if(e.type == SDL_QUIT) {
-                                quit = 1;
+                                running = 0;
                         } else if(e.type == SDL_KEYDOWN) {
-                                switch(e.key.keysym.sym) {
-                                        //Increase red
-                                        case SDLK_q:
-                                                r += 32;
-                                                break;
-
-                                        //Increase green
-                                        case SDLK_w:
-                                                g += 32;
-                                                break;
-
-                                        //Increase blue
-                                        case SDLK_e:
-                                                b += 32;
-                                                break;
-
-                                        //Decrease red
-                                        case SDLK_a:
-                                                r -= 32;
-                                                break;
-
-                                        //Decrease green
-                                        case SDLK_s:
-                                                g -= 32;
-                                                break;
-
-                                        //Decrease blue
-                                        case SDLK_d:
-                                                b -= 32;
-                                                break;
-
-                                        case SDLK_r:
-                                                r = 255;
-                                                g = 255;
-                                                b = 255;
-                                                break;
+                                if(e.key.keysym.sym == SDLK_w){
+                                        if(alpha + ALPHA_DELTA > 255) alpha = 255;
+                                        else alpha += ALPHA_DELTA;
+                                } else if (e.key.keysym.sym == SDLK_s){
+                                        if(alpha - ALPHA_DELTA < 0) alpha = 0;
+                                        else alpha -= ALPHA_DELTA;
                                 }
+                                printf("alpha: %d\n", alpha);
                         }
                 }
 
@@ -212,13 +194,18 @@ int event_loop()
                 SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
                 SDL_RenderClear(gRenderer);
 
+                LTexture_render(gBackgroundTexture, 0, 0, NULL);
+
                 //Modulate and render texture
-                LTexture_setColor(gModulatedTexture, r, g, b);
+                LTexture_setAlpha(gModulatedTexture, alpha);
                 LTexture_render(gModulatedTexture, 0, 0, NULL);
 
                 //Update screen
                 SDL_RenderPresent(gRenderer);
         }
+
+        close();
+
         return 0;
 }
 
