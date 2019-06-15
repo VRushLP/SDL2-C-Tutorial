@@ -61,34 +61,34 @@ int init() {
                              SCREEN_WIDTH,
                              SCREEN_HEIGHT,
                              SDL_WINDOW_SHOWN
-                        );
+                );
 
 		if(gWindow == NULL) {
 			printf("Window could not be created! SDL Error: %s\n", SDL_GetError());
-			success = 0;
-		} else {
-			//Create renderer for window
-			gRenderer = SDL_CreateRenderer(gWindow, -1, SDL_RENDERER_ACCELERATED);
-			if(gRenderer == NULL) {
-				printf("Renderer could not be created! SDL Error: %s\n",
-                                        SDL_GetError());
-				success = 0;
-			} else {
-				//Initialize renderer color
-				SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
-
-				//Initialize PNG loading
-				int imgFlags = IMG_INIT_PNG;
-				if(!(IMG_Init(imgFlags) & imgFlags)) {
-					printf("SDL_image could not initialize! SDL_image Error: %s\n",
-                                                IMG_GetError()
-                                        );
-					success = 0;
-				}
-			}
+			return 0;
 		}
-	}
 
+
+                //Create renderer for window
+                gRenderer = SDL_CreateRenderer(gWindow, -1, SDL_RENDERER_ACCELERATED);
+                if(gRenderer == NULL) {
+                        printf("Renderer could not be created! SDL Error: %s\n", SDL_GetError());
+                        return 0;
+                }
+                //Initialize renderer color
+                SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
+
+                //Initialize PNG loading
+                int imgFlags = IMG_INIT_PNG;
+                if(!(IMG_Init(imgFlags) & imgFlags)) {
+                        printf("SDL_image could not initialize! SDL_image Error: %s\n",
+                                IMG_GetError()
+                        );
+                        success = 0;
+                }
+
+
+	}
 	return success;
 }
 
@@ -216,13 +216,12 @@ int main(int argc, char* args[])
 		printf( "Failed to initialize!\n" );
 		goto finalize;
 	}
-		//Load media
+        //Load media
         if(!loadMedia()) {
                 printf( "Failed to load media!\n" );
                 goto finalize;
         }
         event_loop();
-
 
 	finalize:
 	//Free resources and close SDL
